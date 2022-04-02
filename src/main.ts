@@ -1,8 +1,20 @@
+import { sleep } from './sleep';
 import './style.scss';
 
-const app = document.querySelector<HTMLDivElement>('#app')!
+console.log('started app');
 
-app.innerHTML = `
-  <h1>Hello Vite!</h1>
-  <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
-`
+mdr();
+
+
+async function mdr() {
+  const textArea = document.querySelector<HTMLTextAreaElement>('#myTextArea')!;
+  await sleep(1000);
+  textArea.value = 'Hello jeune padawan, \r\n';
+  await sleep(1500);
+  textArea.value += 'Bienvenue dans ma matrice.\r\n'
+
+  while(true) {
+    await sleep(1000);
+    textArea.value += '.'
+  }
+}
