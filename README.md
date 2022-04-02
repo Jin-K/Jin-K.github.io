@@ -1,2 +1,5 @@
 # ecv
-experimenting GitHub pages, vite &amp; rollup
+experimenting
+  - GitHub pages,
+  - vite &amp;
+  - rollup
