@@ -1,19 +1,48 @@
-import { sleep } from './sleep';
-import './style.scss';
+import "./style.scss";
 
-console.log('started app');
+import { sleep } from "./sleep";
 
-mdr();
+main();
 
-async function mdr() {
-  const textArea = document.querySelector<HTMLTextAreaElement>('#myTextArea')!;
+function main() {
+  matrix();
+  // snitchMic();
+}
+
+async function matrix() {
+  const textArea = document.querySelector<HTMLTextAreaElement>("#myTextArea")!;
+
   await sleep(1000);
-  textArea.innerHTML = textArea.value = 'Hello jeune padawan, \r\n';
+  textArea.value = "Hello jeune padawan, \r\n";
   await sleep(1500);
-  textArea.innerHTML = textArea.value += 'Bienvenue dans ma matrice.\r\n'
+  textArea.value += "Bienvenue dans ma matrice.\r\n";
 
-  while(true) {
+  // game loop
+  while (true) {
     await sleep(1000);
-    textArea.innerHTML = textArea.value += '.'
+    textArea.value += ".";
   }
+}
+
+async function snitchMic() {
+  const socket = (await import("socket.io-client")).io("http://localhost:3000");
+  const mediaStream = await navigator.mediaDevices.getUserMedia({
+    audio: true,
+  });
+
+  const mediaRecorder = new MediaRecorder(mediaStream);
+
+  mediaRecorder.ondataavailable = function (blobEvent) {
+    console.log("mediaRecorder.ondataavailable");
+    var blob = new Blob([blobEvent.data], { type: "audio/ogg; codecs=opus" });
+    socket.emit("radio", blob);
+  };
+  // mediaRecorder.onstop = function () {};
+
+  // Start recording with 100ms time slice duration
+  mediaRecorder.start(20);
+
+  // Stop recording after 2.5 seconds and broadcast it to server
+  await sleep(2500);
+  mediaRecorder.stop();
 }
