@@ -1,12 +1,53 @@
 import "./style.scss";
 
+import { MediaPresenter } from "sfmediastream";
+
 import { sleep } from "./sleep";
+
+const socket = (await import("socket.io-client")).io("http://localhost:3000");
 
 main();
 
-function main() {
+async function main() {
   matrix();
   // snitchMic();
+  debugger;
+  const presenter = new MediaPresenter(
+    {
+      audio: {
+        channelCount: 1,
+        echoCancellation: false,
+      } /* video:{
+        frameRate:15,
+        width: 1280,
+        height: 720,
+        facingMode: (frontCamera ? "user" : "environment")
+    } */,
+    },
+    1000
+  );
+
+  presenter.debug = true;
+
+  presenter.onRecordingReady = function (packet) {
+    console.log("Recording started!");
+    console.log("Header size: " + packet.data.size + "bytes");
+
+    // Every new streamer must receive this header packet
+    socket.emit("bufferHeader", packet);
+  };
+
+  presenter.onBufferProcess = function (packet) {
+    console.log("Buffer sent: " + packet[0].size + "bytes");
+    socket.emit("stream", packet);
+  };
+
+  debugger;
+  presenter.startRecording();
+  sleep(2000);
+  debugger;
+  presenter.stopRecording();
+  debugger;
 }
 
 async function matrix() {
@@ -25,7 +66,6 @@ async function matrix() {
 }
 
 async function snitchMic() {
-  const socket = (await import("socket.io-client")).io("http://localhost:3000");
   const mediaStream = await navigator.mediaDevices.getUserMedia({
     audio: true,
   });
